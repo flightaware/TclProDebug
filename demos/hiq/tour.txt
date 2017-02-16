@@ -1,0 +1,61 @@
+tour.txt --
+
+	This file contains a sequence of actions to take to give an
+	alpha demo.
+
+Copyright (c) 1998 Scriptics Corporation
+All rights reserved.
+
+RCS: @(#) $Id: tour.txt,v 1.1 2000/07/14 18:00:03 welch Exp $
+
+1) open demos/hiq/hiqGUI.tcl
+
+2) add breakpoint on "pack .hiq", line 49
+  
+   open breakpoint window
+
+3) load hiq.tcl with wish
+
+4) run
+
+5) eval "update", keep eval window open
+
+6) step, update, step, update, step-out, step-in, run
+
+7) demostrate how pegs are moved in the app
+
+   add breakpoint on line 94 of hiqGUI.tcl
+
+8) drag a peg & drop over blue
+
+   step-in repeatedly
+
+9) drag a peg & drop over illegal hole
+
+10) drag a peg & drop over legal hole
+
+11) press undo move
+
+    check proc win for *new*
+
+    press "supress and break"
+
+    eval new_message $w "undid!!!"
+
+    eval update
+
+12) drag a peg & drop peg
+
+    disable bpt
+
+    drag a peg & drop peg
+
+13) demonstrate "restart"
+
+    add bpt to line 212 of hiqState.tcl
+
+    press restart
+
+    see multiple stacks
+
+    

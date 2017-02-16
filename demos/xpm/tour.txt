@@ -1,0 +1,51 @@
+tour.txt --
+
+	This file contains a sequence of actions to take to give an
+	alpha demo.
+
+Copyright (c) 1998 Scriptics Corporation
+All rights reserved.
+
+RCS: @(#) $Id: tour.txt,v 1.1 2000/07/14 18:00:24 welch Exp $
+
+1) load makeXPM.tcl with tclsh and cmdline args: 6 8 4 design.xpm
+
+2) open proc window and start stepping
+
+   add breakpoints at beginning of red and indigo
+
+3) step in "writeToFile"
+
+   run
+
+4) step-in until "result" has a value
+
+   watch "color"
+
+   inspect "result"--live
+
+   run
+
+5) stopped in indigo
+
+   .....
+
+   step-out repeatedly
+
+5) goto writeToFile stack level
+
+   inspect "repeatNumber"--live
+
+   inspect "lineNumber"--live+bpt
+
+   remove all bpts
+
+   run
+
+6) interrupt
+
+   run
+
+   interrupt
+
+   run

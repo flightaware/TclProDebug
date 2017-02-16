@@ -1,0 +1,11 @@
+Remote debugging of programs still works as described in the TclPro User Manual
+and the initdebug man page at lib/remotedebug/docs/initdebug.pdf.
+
+The only addition is that for the sake of convenience the initdebug.tcl file has
+been wrapped in a package, so that (assuming the auto_path variable has been
+initialized properly) a client code file can be prepared for remote debugging
+simply by adding the commands:
+
+  package require remotedebug
+  debugger_init
+  debugger_eval {<code to be debugged>}

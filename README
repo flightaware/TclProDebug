@@ -1,0 +1,31 @@
+The TclPro Debugger version 2.0 is an upgrade of of the debugger included in the
+TclPro product version 1.5 released and open-sourced by Scriptics Corporation.
+
+To run: execute the file bin/prodebug
+
+The Help menu item on the Debugger's menu bar has an option to open the TclPro
+user's guide, which will appear as a PDF file in the user's default browser.
+The information in the chapter on the Debugger is still valid.
+
+The debugger code has been upgraded to function with up-to-date releases of 
+Tcl/Tk (i.e., versions 8.5, 8.6):
+
+
+* Tk GUI code upgraded to work with current Tk API.
+
+* Upgraded OS interaction code to work with current operating system releases.
+
+* Instrumentation code added to accomodate the expand operator.
+
+* Code added for proper custom instrumentation of new Tcl commands (e.g. apply,
+dict, try) and subcommands.
+
+* Put remote-debugging client code file into package for ease of access.
+
+* Cleanup and correction of doc files.
+
+* Files and directories re-arranged into starkit-ready format.
+
+* Added script to wrap debugger code into a starkit of minimum size.
+
+* Miscellaneous bug fixes.

@@ -1,0 +1,3 @@
+#!/usr/bin/env tclsh
+
+source [file dirn [file dirn [file dirn [file norm [file join [info script] __dummy__]]]]]/main.tcl

@@ -1,0 +1,20 @@
+# tclCom.pdx --
+#
+#	This file implements the TclPro Debugger extension for the Tcl
+#	Com API.
+#
+# Copyright (c) 1998-2000 Ajuba Solutions
+# Copyright (c) 2017 Forward Folio LLC
+# See the file "license.terms" for information on usage and redistribution of this file.
+# 
+
+# Register the Tcl Com extension
+
+instrument::addExtension 2.0 {tclCom}
+
+# Register handlers for each of the XML Generation commands
+
+instrument::addCommand foreachitem		{parseTail 3 {
+				parseWord parseBody}}
+instrument::addCommand tclcom::foreachitem	{parseTail 3 {
+				parseWord parseBody}}

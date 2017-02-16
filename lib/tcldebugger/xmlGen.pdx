@@ -1,0 +1,20 @@
+# xmlGen.pdx --
+#
+#	This file implements the TclPro Debugger extension for the XML
+#	Generation API.
+#
+# Copyright (c) 1998-2000 Ajuba Solutions
+# Copyright (c) 2017 Forward Folio LLC
+# See the file "license.terms" for information on usage and redistribution of this file.
+# 
+
+# Register the XML Generation extension
+
+instrument::addExtension 2.0 {xmlGen}
+
+# Register handlers for each of the XML Generation commands
+
+instrument::addCommand element		{parseSimpleArgs 2 4 {
+					parseWord parseWord parseWord parseBody}}
+instrument::addCommand xmlgen::element	{parseSimpleArgs 2 4 {
+					parseWord parseWord parseWord parseBody}}
