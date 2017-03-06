@@ -137,7 +137,7 @@ proc watch::createWindow {} {
     
     # Create the table for displaying var names and values.
 
-    Sset midFrm [frame $mainFrm.midFrm]
+    set midFrm [frame $mainFrm.midFrm]
     set varFrm [frame $midFrm.varFrm]
     set nameFrm  [frame $varFrm.nameFrm]
     set vbpFrm   [frame $nameFrm.vbpFrm -width $bar(width)]
