@@ -2017,7 +2017,7 @@ proc DbgNub_Return {args} {
 	    set realErrorCode [lindex $args [expr {$i + 1}]]
 	} elseif {$arg == "-errorinfo"} {
 	    set realErrorInfo [lindex $args [expr {$i + 1}]]
-	} elseif {$arg in {-errorstack -level -options}} {
+	} elseif {$arg in {-errorstack -level}} {
         error "argument $arg not supported"
     }
     }
