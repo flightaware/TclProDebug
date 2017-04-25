@@ -1573,7 +1573,7 @@ proc DbgNub_Proc {location name argList body} {
     ${ns}set DbgNub_level \[DbgNub_infoCmd level\]
     DbgNub_PushProcContext \$DbgNub_level
     ${ns}set DbgNub_catchCode \[DbgNub_UpdateReturnInfo \[
-        [list DbgNub_catchCmd $body DbgNub_result]\]\]
+        [list DbgNub_catchCmd $body DbgNub_result DbgNub_options]\]\]
     ${ns}foreach DbgNub_index \[${ns}info locals\] {
 	${ns}if {\[${ns}trace vinfo \$DbgNub_index\] != \"\"} {
 	    ${ns}if {[${ns}catch {${ns}upvar 0 DbgNub_dummy \$DbgNub_index}]} {
@@ -1582,7 +1582,7 @@ proc DbgNub_Proc {location name argList body} {
 	}
     }
     DbgNub_PopContext
-    ${ns}return -code \$DbgNub_catchCode -errorinfo \$DbgNub_errorInfo -errorcode \$DbgNub_errorCode \$DbgNub_result"]]
+    ${ns}return -code \$DbgNub_catchCode -errorinfo \$DbgNub_errorInfo -errorcode \$DbgNub_errorCode -options \$DbgNub_options \$DbgNub_result"]]
 }
 
 # DbgNub_PushProcContext --
@@ -2028,13 +2028,13 @@ proc DbgNub_Return {args} {
     # the errorInfo.  If the call succeeds, we store the real return code so we
     # can retrieve it later.
 
-    set code [DbgNub_catchCmd {DbgNub_uplevelCmd $DbgNub(scope)return $args} result]
+    set code [DbgNub_catchCmd {DbgNub_uplevelCmd $DbgNub(scope)return $args} result options]
     if {$code == 1} {
 	regsub -- DbgNub_Return $errorInfo catch errorInfo
     } else {
 	set DbgNub(returnState) [list $realCode $realErrorCode $realErrorInfo]
     }
-    return -code $code -errorcode $errorCode -errorinfo $errorInfo $result
+    return -code $code -errorcode $errorCode -errorinfo $errorInfo -options $options $result
 }
 
 # DbgNub_UpdateReturnInfo --
