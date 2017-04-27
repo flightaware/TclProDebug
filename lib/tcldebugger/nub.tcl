@@ -418,8 +418,13 @@ proc DbgNub_Do {subcommand location cmd} {
     global DbgNub errorInfo errorCode
 
     if {$DbgNub(socket) == -1} {
-	set code [DbgNub_catchCmd {DbgNub_uplevelCmd 1 $cmd} result]
-	return -code $code -errorcode $errorCode -errorinfo $errorInfo $result
+	set code [DbgNub_catchCmd {DbgNub_uplevelCmd 1 $cmd} result options]
+    array set optsArray $options
+    array unset optsArray -code
+    array unset optsArray -errorcode 
+    array unset optsArray -errorinfo 
+    array unset optsArray -level
+	return -code $code -errorcode $errorCode -errorinfo $errorInfo -options [array get optsArray] $result
     }
 
     set level [expr {[DbgNub_infoCmd level] - 1}]
@@ -461,7 +466,12 @@ proc DbgNub_Do {subcommand location cmd} {
     # Execute the statement and return the result
 
     set DbgNub(lastCode) [DbgNub_catchCmd {DbgNub_uplevelCmd 1 $cmd} \
-	    DbgNub(lastResult)]
+	    DbgNub(lastResult) options]
+    array set optsArray $options
+    array unset optsArray -code
+    array unset optsArray -errorcode 
+    array unset optsArray -errorinfo 
+    array unset optsArray -level
 
     # Store the current location in DbgNub array, so we can calculate which
     # locations have not yet been covered.
@@ -528,8 +538,9 @@ proc DbgNub_Do {subcommand location cmd} {
 	incr DbgNub(currentCmdLevel) -1
     }
 
-    return -code $DbgNub(lastCode) -errorcode $errorCode \
-	    -errorinfo $errorInfo $DbgNub(lastResult)
+    set optsDict [dict create -errorinfo $errorInfo -errorcode $errorCode -options [array get optsArray]]
+    set optsDict [dict filter $optsDict value ?*]
+    return -code $DbgNub(lastCode) {*}$optsDict $DbgNub(lastResult)
 }
 
 # DbgNub_Break --
@@ -1664,7 +1675,7 @@ proc DbgNub_WrapItclBody {args} {
     ${ns}set DbgNub_level \[DbgNub_infoCmd level\]
     ${ns}eval \[${ns}list DbgNub_PushContext \$DbgNub_level\] \[info function \[${ns}lindex \[info level 0\] 0\] -type -name -args\]
     ${ns}set DbgNub_catchCode \[DbgNub_UpdateReturnInfo \[
-        [list DbgNub_catchCmd $body DbgNub_result]\]\]
+        [list DbgNub_catchCmd $body DbgNub_result DbgNub_options]\]\]
     ${ns}foreach DbgNub_index \[${ns}info locals\] {
 	${ns}if {\[${ns}trace vinfo \$DbgNub_index\] != \"\"} {
 	    ${ns}if {[${ns}catch {${ns}upvar 0 DbgNub_dummy \$DbgNub_index}]} {
@@ -1673,7 +1684,7 @@ proc DbgNub_WrapItclBody {args} {
 	}
     }
     DbgNub_PopContext
-    ${ns}return -code \$DbgNub_catchCode -errorinfo \$DbgNub_errorInfo -errorcode \$DbgNub_errorCode \$DbgNub_result"
+    ${ns}return -code \$DbgNub_catchCode -errorinfo \$DbgNub_errorInfo -errorcode \$DbgNub_errorCode -options \$DbgNub_options \$DbgNub_result"
     }
     return [DbgNub_uplevelCmd 1 $args [list $body]]
 }
@@ -1723,7 +1734,7 @@ proc DbgNub_ItclConfig {body} {
 
     set marker [DbgNub_PushStack [expr {$level-1}] [list $level configure]]
     set code [DbgNub_catchCmd \
-	    {DbgNub_uplevelCmd 1 $body} result]
+	    {DbgNub_uplevelCmd 1 $body} result options]
     DbgNub_PopStack $marker
 
     # Check to see if we are in the middle of a step-out operation and
@@ -1735,7 +1746,7 @@ proc DbgNub_ItclConfig {body} {
     }
     DbgNub_PopContext
 
-    return -code $code -errorinfo $errorInfo -errorcode $errorCode $result
+    return -code $code -errorinfo $errorInfo -errorcode $errorCode -options $options $result
 }
 
 # DbgNub_Constructor --
@@ -1788,10 +1799,10 @@ proc DbgNub_ConstructorInit {body} {
     eval [list DbgNub_PushContext $level] [DbgNub_uplevelCmd 1 \
 	    {info function [lindex [info level 0] 0] -type -name -args}]
 
-    set code [DbgNub_catchCmd {DbgNub_uplevelCmd 1 $body} result]
+    set code [DbgNub_catchCmd {DbgNub_uplevelCmd 1 $body} result options]
 
     DbgNub_PopContext
-    return -code $code -errorinfo $errorInfo -errorcode $errorCode $result
+    return -code $code -errorinfo $errorInfo -errorcode $errorCode -options $options $result
 }
 
 # DbgNub_Class --
@@ -1817,14 +1828,14 @@ proc DbgNub_Class {cmd name body} {
 	incr DbgNub(stepOutLevel)
     }
     set code [DbgNub_catchCmd \
-	    {DbgNub_uplevelCmd 1 [list $cmd $name $body]} result]
+	    {DbgNub_uplevelCmd 1 [list $cmd $name $body]} result options]
     if {$DbgNub(stepOutLevel) != {}} {
 	incr DbgNub(stepOutLevel) -1
     }
     incr DbgNub(stepLevel) -1
     DbgNub_PopContext
 
-    return -code $code -errorinfo $errorInfo -errorcode $errorCode $result
+    return -code $code -errorinfo $errorInfo -errorcode $errorCode -options $options $result
 }
 
 # DbgNub_NamespaceEval --
@@ -1862,14 +1873,14 @@ proc DbgNub_NamespaceEval {args} {
     }
     set code [DbgNub_catchCmd {
 	DbgNub_uplevelCmd 1 $args
-    } result]
+    } result options]
     if {$DbgNub(stepOutLevel) != {}} {
 	incr DbgNub(stepOutLevel) -1
     }
     incr DbgNub(stepLevel) -1
     DbgNub_PopContext
 
-    return -code $code -errorinfo $errorInfo -errorcode $errorCode $result
+    return -code $code -errorinfo $errorInfo -errorcode $errorCode -options $options $result
 }
 
 proc DbgNub_Apply {args} {
@@ -1898,11 +1909,11 @@ proc DbgNub_Apply {args} {
 
     set code [DbgNub_catchCmd {
     DbgNub_uplevelCmd 1 $procName $argList
-    } result]
+    } result options]
 
     rename $procName {}
 
-    return -code $code -errorinfo $errorInfo -errorcode $errorCode $result
+    return -code $code -errorinfo $errorInfo -errorcode $errorCode -options $options $result
 }
 
 # DbgNub_WrapCommands --
@@ -1970,7 +1981,7 @@ proc DbgNub_catchWrapper {args} {
     global DbgNub errorCode errorInfo
     set oldCatch $DbgNub(catch)
     set DbgNub(catch) 0
-    set code [DbgNub_catchCmd {DbgNub_uplevelCmd DbgNub_catchCmd $args} result]
+    set code [DbgNub_catchCmd {DbgNub_uplevelCmd DbgNub_catchCmd $args} result options]
     if {$code == 1} {
 	regsub -- DbgNub_catchCmd $errorInfo catch errorInfo
     }
@@ -1979,7 +1990,7 @@ proc DbgNub_catchWrapper {args} {
     if {[DbgNub_infoCmd exists DbgNub(returnState)]} {
 	unset DbgNub(returnState)
     }
-    return -code $code -errorcode $errorCode -errorinfo $errorInfo $result
+    return -code $code -errorcode $errorCode -errorinfo $errorInfo -options $options $result
 }
 
 # DbgNub_Return --
@@ -2008,18 +2019,19 @@ proc DbgNub_Return {args} {
     set realCode "ok"
     set realErrorCode ""
     set realErrorInfo ""
-    set argc [llength $args]
-    for {set i 0} {$i < $argc} {incr i 2} {
-	set arg [lindex $args $i]
-	if {$arg == "-code"} {
-	    set realCode [lindex $args [expr {$i + 1}]]
-	} elseif {$arg == "-errorcode"} {
-	    set realErrorCode [lindex $args [expr {$i + 1}]]
-	} elseif {$arg == "-errorinfo"} {
-	    set realErrorInfo [lindex $args [expr {$i + 1}]]
-	} elseif {$arg in {-errorstack -level}} {
-        error "argument $arg not supported"
+    if {[llength $args] % 2} {
+        array set optArray [lrange $args 0 end-1]
+    } else { array set optArray $args }
+    array set optArray $args
+    foreach {optPattern optName optVar} \
+      {-c* -code realCode -errorc* -errorcode realErrorCode -errori* -errorinfo realErrorInfo -l* -level realLevel} {
+        set optStub [array names optArray $optPattern]
+        if {![string first $optStub $optName]} {
+            set $optVar $optArray($optStub)
+        }
     }
+    if {[info exists realLevel]} {
+        error "argument -level not supported"
     }
     
 
@@ -2288,9 +2300,9 @@ proc DbgNub_sourceWrapper {args} {
     if {$DbgNub(socket) == -1} {
 	set code [DbgNub_catchCmd {
 	    DbgNub_uplevelCmd [list DbgNub_sourceCmd $file]
-	} result]
+	} result options]
 	return -code $code -errorcode $errorCode -errorinfo $errorInfo \
-		$result
+		-options $options $result
     }
 	
     # If the users preferences indicate that autoloaded scripts 
@@ -2351,7 +2363,7 @@ proc DbgNub_sourceWrapper {args} {
 
     # If the "dontInstrument" flag is true, just source the file 
     # normally, taking care to propagate the error result.
-    # NOTE: this will not work on the Macintosh because of it's additional
+    # NOTE: this will not work on the Macintosh because of its additional
     # arguments.
 
     if {$dontInstrument} {
@@ -2365,13 +2377,13 @@ proc DbgNub_sourceWrapper {args} {
 
 	set code [DbgNub_catchCmd {
 	    DbgNub_uplevelCmd [list DbgNub_sourceCmd $file]
-	} result]
+	} result options]
 	
 	set DbgNub(script) [lreplace $DbgNub(script) end end]
 	set DbgNub(inExclude) $oldExclude
 
 	return -code $code -errorcode $errorCode -errorinfo $errorInfo \
-		$result
+		-options $options $result
     }
 
     lappend DbgNub(script) $file
@@ -2422,7 +2434,7 @@ proc DbgNub_sourceWrapper {args} {
     set marker [DbgNub_PushStack $level [list $level "source" $file]]
     set code [DbgNub_UpdateReturnInfo [DbgNub_catchCmd {
 	DbgNub_uplevelCmd 1 $icode
-    } result]]
+    } result options]]
     DbgNub_PopStack $marker
     DbgNub_PopContext
 
@@ -2436,7 +2448,7 @@ proc DbgNub_sourceWrapper {args} {
 	set errorCode NONE
 	error $result $errorInfo $errorCode
     }
-    return -code $code -errorcode $errorCode -errorinfo $errorInfo $result
+    return -code $code -errorcode $errorCode -errorinfo $errorInfo -options $options $result
 }
 
 # DbgNub_vwaitWrapper --
@@ -2535,14 +2547,14 @@ proc DbgNub_uplevelWrapper {args} {
 	    [expr {[DbgNub_infoCmd level] - 1}] [list $level uplevel]]
     set code [DbgNub_catchCmd {
 	DbgNub_uplevelCmd DbgNub_uplevelCmd $args
-    } result]
+    } result options]
     DbgNub_PopStack $marker
     DbgNub_PopContext
     if {$code == 1} {
 	set result [DbgNub_cleanErrorInfo $result DbgNub_uplevelCmd uplevel]
 	set DbgNub(cleanWrapper) {DbgNub_uplevelCmd uplevel}
     }
-    return -code $code -errorcode $errorCode -errorinfo $errorInfo $result
+    return -code $code -errorcode $errorCode -errorinfo $errorInfo -options $options $result
 }
 
 # DbgNub_packageWrapper --
@@ -3351,12 +3363,12 @@ DbgNub_procCmd debugger_eval {args} {
     set marker [DbgNub_PushStack $level [list $level "debugger_eval"]]
     set code [DbgNub_catchCmd {
 	DbgNub_uplevelCmd 1 $icode
-    } result]
+    } result options]
     DbgNub_cleanErrorInfo
     DbgNub_PopStack $marker
     DbgNub_PopContext
 
-    return -code $code -errorcode $errorCode -errorinfo $errorInfo $result
+    return -code $code -errorcode $errorCode -errorinfo $errorInfo -options $options $result
 }
 
 # debugger_break --
