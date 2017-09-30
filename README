@@ -1,6 +1,10 @@
 The TclPro Debugger version 2.0 is an upgrade of of the debugger included in the
 TclPro product version 1.5 released and open-sourced by Scriptics Corporation.
 
+To install: You will need to install the extension in lib/tclparser to add the parse command to Tcl.
+
+    cd lib/tclparser && autoreconf && ./configure && make install
+
 To run: execute the file bin/prodebug
 
 The Help menu item on the Debugger's menu bar has an option to open the TclPro
