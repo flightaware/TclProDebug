@@ -1,4 +1,4 @@
-if {::tcl_platform(platform) ne {windows}} {
+if {$::tcl_platform(platform) ne {windows}} {
 	error "package only valid on Windows platform."
 }
 

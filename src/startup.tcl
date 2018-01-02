@@ -24,7 +24,7 @@ set parameters [list \
 	appType local \
 ]
 
-if {$::tcl_platform(platform) == "windows"} {
+if {0 && $::tcl_platform(platform) == "windows"} {
     package require Winico
     lappend parameters iconImage [winico load dbg scicons.dll]
 } else {

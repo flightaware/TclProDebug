@@ -9,7 +9,7 @@
 
 if {$::tcl_platform(platform) == "windows"} {
     package require dbgext
-    package require Winico
+    catch {package require Winico}
     package require registry
 }
 
