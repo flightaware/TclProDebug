@@ -9,10 +9,6 @@
 
 package require parser
 
-if {$::tcl_platform(platform) == "windows"} {
-    package require dbgext
-}
-
 namespace eval dbg {
 
     # debugging options --
@@ -177,7 +173,7 @@ proc dbg::start {application startDir script argList clientData} {
 		    lappend args $arg
 		}
 	    }
-	    exec [file nativename $application] {*}$args {*}$argList \
+	    exec {*}[auto_execok start] [file nativename $application] {*}$args {*}$argList \
 		    [file nativename $startDir] &
 	} else {
 	    set args ""

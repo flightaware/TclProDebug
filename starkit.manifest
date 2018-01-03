@@ -98,8 +98,6 @@ lib/projectInfo/projectInfo.tcl
 lib/projectInfo/pkgIndex.tcl
 lib/tclparser/pkgIndex.tcl
 lib/tclparser/libtclparser1.8.so
-lib/dbgext/pkgIndex.tcl
-lib/dbgext/dbgext.tcl
 license.terms
 src/startup.tcl
 src/images/debugUnixIcon.gif
