@@ -8,8 +8,8 @@
 # 
 
 if {$::tcl_platform(platform) == "windows"} {
-    package require dbgext
-    package require Winico
+    # package require dbgext
+    catch {package require Winico}
     package require registry
 }
 
@@ -1174,5 +1174,9 @@ proc system::checkBrowserWindowState {args} {
 if {$tcl_platform(platform) == "unix"} {
     proc kill {pid} {
 	exec kill -9 $pid
+    }
+} else {
+    proc kill {pid} {
+	exec [auto_execok taskkill] /PID $pid /F
     }
 }
