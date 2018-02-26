@@ -153,27 +153,28 @@ proc dbg::start {application startDir script argList clientData} {
 	# start up the application
 
 	if {$::tcl_platform(platform) == "windows"} {
-	    set args ""
-	    foreach arg [list \
-		    [file nativename [file join $libDir appLaunch.tcl]] \
-		    127.0.0.1 \
-		    $serverPort \
-		    [file nativename $script] \
-		    $clientData] {
-		if {([string length $arg] == 0) \
-			|| ([string first " " $arg] != -1)} {
-		    set quote 1
-		} else {
-		    set quote 0
-		}
-		regsub -all {(\\)*"} $arg {\1\1\\"} arg
-		if {$quote} {
-		    lappend args "\"$arg\""
-		} else {
-		    lappend args $arg
-		}
-	    }
-	    exec {*}[auto_execok start] [file nativename $application] {*}$args {*}$argList \
+	    set args [list \
+                          [file nativename [file join $libDir appLaunch.tcl]] \
+                          127.0.0.1 \
+                          $serverPort \
+                          [file nativename $script] \
+                          $clientData]
+            # A note on the use of start: Like many things about Windows,
+            # start is weird in that if its first argument begins with
+            # double quotes, it is treated as the title of the console
+            # and not the application program path. Now Tcl's exec will
+            # put double quotes around its argument but only if it
+            # contains quotes. Thus start may or may not see double quotes
+            # around the program path. To resolve this ambiguity, we always
+            # pass an empty string as the first argument. Tcl will then
+            # pass it to start as an empty double quoted string which
+            # is treated as the "title" and the second argument is treated
+            # as the program name irrespective of whether it has spaces or
+            # not.
+            # I actually don't know why the application is executed via
+            # start and not directly but assuming there is some reason
+            # I do not want to change it.
+	    exec {*}[auto_execok start] "" [file nativename $application] {*}$args {*}$argList \
 		    [file nativename $startDir] &
 	} else {
 	    set args ""

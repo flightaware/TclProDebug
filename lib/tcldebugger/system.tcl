@@ -961,7 +961,8 @@ proc system::getBrowser {} {
 #
 # Results:
 #	The result of evaluating the exec-ed command.
-
+# TBD - what is this proc ? It is redefined right away in the next proc
+# definition of the same name! -- APN
 proc system::openURL {url} {
     if {[catch {
 	set browserCmd [system::getBrowser]
@@ -986,7 +987,6 @@ proc system::openURL {url} {
 	    # start command and exit, Windows will do the rest.
 	    # Otherwise generate the appropriate browserCmd to be
 	    # execed.
-	    
 	    if {[pref::prefGet browserDefault]} {
 		$browserCmd $url {} {}
 		return

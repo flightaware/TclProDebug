@@ -19,7 +19,7 @@ set about_gif $script_dir/images/about.gif
 set logo_gif $script_dir/images/logo.gif
 
 set parameters [list \
-	aboutCmd "::TclProAboutBox $about_gif $logo_gif" \
+        aboutCmd [list ::TclProAboutBox $about_gif $logo_gif] \
 	aboutCopyright "$::projectInfo::copyright\nVersion $::projectInfo::patchLevel" \
 	appType local \
 ]
